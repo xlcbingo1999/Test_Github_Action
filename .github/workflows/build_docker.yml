@@ -7,21 +7,26 @@ on:
 jobs:
   test_github_action:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+        CUDA: [11.6]
     steps:
-    - uses: actions/checkout@v2
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up CUDA
+      uses: nvidia/setup-cuda@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Set up Python 3.11
+        cuda-version: ${{ matrix.CUDA }}
+
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.11
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements.txt"
-    - name: Test Function
-      run: |
-        python test_torch.py
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run tests with GPU
+      run: python test_torch.py  # 这里应该是你的测试命令
