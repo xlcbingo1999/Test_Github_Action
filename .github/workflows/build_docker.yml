@@ -15,10 +15,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up CUDA
-      uses: nvidia/setup-cuda@v1
-      with:
-        cuda-version: ${{ matrix.CUDA }}
+    - name: Install NVIDIA driver
+      run: |
+        sudo apt-get update -q
+        sudo apt-get install -y nvidia-driver-450
+        sudo nvidia-smi -L
 
     - name: Set up Python
       uses: actions/setup-python@v2
